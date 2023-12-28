@@ -1,19 +1,13 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 /**
- * main - the main function
+ * main - this is the main function
  *
- * Return: void
+ * Return: 0
  */
 
 int main(void)
 {
-	execlp(
-			"betty",
-			"betty",
-			"betty.c",
-			NULL
-		  );
+	printf("Hello, Simple Shell");
+	return (0);
 }
