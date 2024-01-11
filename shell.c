@@ -1,54 +1,60 @@
-#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+#define MAX_COMMAND_LENGTH 100
 
 void display_prompt(void)
 {
-	printf("simple_shell> ");
+	printf("#cisfun$ ");
+	fflush(stdout);
 }
 
-void execute_command(char *command)
+int main(void)
 {
-	pid_t pid = fork();
-
-	if (pid == -1)
-	{
-		perror("fork");
-		exit(EXIT_FAILURE);
-	}
-	else if (pid == 0)
-	{
-		execlp(command, command, (char *) NULL);
-		perror("exec");
-		exit(EXIT_FAILURE);
-	}
-	else
-	{
-		wait(NULL);
-	}
-}
-
-int main (void)
-{
+	pid_t pid;
 	char command[MAX_COMMAND_LENGTH];
 
 	while (1)
 	{
 		display_prompt();
-		
-		if (gets(command, sizeof(command), stdin) == NULL)
+
+		if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL)
 		{
-			printf("\n");
+			printf("\nExiting Shell.\n");
 			break;
 		}
 
 		command[strcspn(command, "\n")] = '\0';
 
-		if (strcmp(command, "exit") == 0)
+		pid = fork();
+
+		if (pid == -1)
 		{
-			break;
+			perror("fork");
+			exit(EXIT_FAILURE);
 		}
+		else if (pid == 0)
+		{
+			if (execlp(command, command, (char *)NULL) == -1)
+			{
+				fprintf(stderr, "simple_shell: command not found: %s\n", command);
+				exit(EXIT_FAILURE);
+			}
+		}
+		else
+		{
+			int status;
+			waitpid(pid, &status, 0);
 
-		execute_command(command);
+			if (!WIFEXITED(status))
+			{
+				fprintf(stderr, "simple_shell: error executing command: %s\n", command);
+			}
+		}
 	}
-
 	return (0);
 }
