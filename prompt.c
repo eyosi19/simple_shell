@@ -11,6 +11,8 @@ char *read_line(void)
 	size_t size = 0;
 	int ret = 0;
 
+	printf("simple_shell$ ");
+
 	if (getline(&line, &size, stdin) == -1)
 	{
 		free(line);
